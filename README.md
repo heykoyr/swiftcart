@@ -22,7 +22,7 @@ Customers open one SwiftCart-branded app and see every shop near them — restau
 
 SwiftCart is not the delivery company. It is the consumer brand and the software, licensed to the operators.
 
-> **Status: pre-launch.** Not yet in public app stores. The system runs end to end — 29 orders have been carried through payment, dispatch, delivery and settlement in the live environment — but this is pilot volume, not traction. The three companies currently on the platform are seeded tenants used to prove isolation, not signed operators.
+> **Status: pre-launch.** Not yet in public app stores. The system runs end to end — 29 orders have been carried through payment, dispatch and delivery in the live environment, 19 of them through in-database settlement — but this is pilot volume, not traction. The three companies currently on the platform are seeded tenants used to prove isolation, not signed operators.
 
 ---
 
