@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 490" width="900" height="490" role="img" aria-labelledby="t d">
+  <title id="t">SwiftCart payment and settlement flow</title>
+  <desc id="d">A customer payment resolves to the fulfilling company. If that company has its own payment key the charge goes to its own account; if not, the order is rejected rather than falling back to the platform account. On delivery the order is settled in-database into the vendor's full subtotal, the rider's net earning and the company's commission at a snapshotted rate.</desc>
+
+  <defs>
+    <style>
+      .lbl { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .h   { font-weight: 700; font-size: 14px; fill: #2A2521; }
+      .s   { font-weight: 400; font-size: 12px; fill: #6B6259; }
+      .e   { font-weight: 600; font-size: 11px; }
+    </style>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B8AFA4"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="490" rx="14" fill="#FFFDF8"/>
+
+  <!-- Customer pays -->
+  <rect x="30" y="46" width="150" height="58" rx="12" fill="#FFFFFF" stroke="#E5E0D8" stroke-width="1.5"/>
+  <text class="lbl h" x="105" y="81" text-anchor="middle">Customer pays</text>
+  <line x1="180" y1="75" x2="211" y2="75" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- Resolve -->
+  <rect x="213" y="40" width="180" height="70" rx="12" fill="#FFF6E4" stroke="#E8B33D" stroke-width="1.5"/>
+  <text class="lbl h" x="303" y="69" text-anchor="middle">Resolve company</text>
+  <text class="lbl s" x="303" y="89" text-anchor="middle">from the merchant</text>
+
+  <!-- branch: has key -->
+  <path d="M393 62 H 430 V 53 H 458" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text class="lbl e" x="452" y="34" text-anchor="end" fill="#0E5A37">has own key</text>
+
+  <!-- branch: no key -->
+  <path d="M393 88 H 430 V 141 H 458" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text class="lbl e" x="404" y="177" fill="#C42E14">no key</text>
+
+  <!-- Charge -->
+  <rect x="460" y="24" width="210" height="58" rx="12" fill="#F0FAF3" stroke="#0E5A37" stroke-width="1.5"/>
+  <text class="lbl h" x="565" y="48" text-anchor="middle">Charge that company's</text>
+  <text class="lbl h" x="565" y="68" text-anchor="middle">own account</text>
+
+  <!-- Reject -->
+  <rect x="460" y="112" width="210" height="58" rx="12" fill="#FDF2F0" stroke="#E8391D" stroke-width="1.5"/>
+  <text class="lbl h" x="565" y="136" text-anchor="middle" fill="#C42E14">Reject the order</text>
+  <text class="lbl s" x="565" y="156" text-anchor="middle">not payment-ready</text>
+
+  <!-- Delivered -->
+  <line x1="670" y1="53" x2="704" y2="53" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="706" y="24" width="140" height="58" rx="12" fill="#FFFFFF" stroke="#E5E0D8" stroke-width="1.5"/>
+  <text class="lbl h" x="776" y="59" text-anchor="middle">Delivered</text>
+
+  <!-- Delivered -> Settle -->
+  <path d="M776 82 V 200 H 450 V 226" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- Settle -->
+  <rect x="350" y="228" width="200" height="56" rx="12" fill="#2A2521"/>
+  <text class="lbl" x="450" y="262" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">Settle in-database</text>
+
+  <!-- three-way split -->
+  <path d="M450 284 V 312 H 160 V 338" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+  <path d="M450 284 V 338" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+  <path d="M450 284 V 312 H 740 V 338" fill="none" stroke="#B8AFA4" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <rect x="40" y="340" width="240" height="88" rx="12" fill="#FFFFFF" stroke="#E5E0D8" stroke-width="1.5"/>
+  <text class="lbl h" x="160" y="370" text-anchor="middle">Vendor</text>
+  <text class="lbl s" x="160" y="392" text-anchor="middle">the full subtotal —</text>
+  <text class="lbl s" x="160" y="410" text-anchor="middle">no commission, ever</text>
+
+  <rect x="330" y="340" width="240" height="88" rx="12" fill="#FFFFFF" stroke="#E5E0D8" stroke-width="1.5"/>
+  <text class="lbl h" x="450" y="370" text-anchor="middle">Rider</text>
+  <text class="lbl s" x="450" y="392" text-anchor="middle">net earning, after the</text>
+  <text class="lbl s" x="450" y="410" text-anchor="middle">company's own rate</text>
+
+  <rect x="620" y="340" width="240" height="88" rx="12" fill="#FFFFFF" stroke="#E5E0D8" stroke-width="1.5"/>
+  <text class="lbl h" x="740" y="370" text-anchor="middle">Company</text>
+  <text class="lbl s" x="740" y="392" text-anchor="middle">commission at a rate</text>
+  <text class="lbl s" x="740" y="410" text-anchor="middle">snapshotted on the order</text>
+
+  <text class="lbl" x="450" y="462" text-anchor="middle" font-size="12" font-weight="600" fill="#8A8078">SwiftCart takes no cut of any order, and never holds customer money.</text>
+</svg>

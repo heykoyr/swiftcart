@@ -121,57 +121,15 @@ A rider is never shown the delivery fee or the commission — only what lands in
 
 ## How it works
 
-```mermaid
-flowchart TB
-    C["Customer app<br/>one nationwide storefront"]
-    CAT["Catalogue<br/>deliberately not tenant-scoped<br/>public fields only"]
-    ROUTE{"Which company<br/>fulfils this store?"}
-    A["Company A<br/>own riders, own rates<br/>own payment account"]
-    B["Company B<br/>own riders, own rates<br/>own payment account"]
-    DB[("Shared Postgres<br/>69 tables, RLS on every one<br/>29 carry company_id, 192 policies")]
-    ADMIN["Admin console<br/>company view: own data only<br/>platform view: every company"]
-
-    subgraph OPEN["OPEN - one consumer brand"]
-        CAT
-    end
-
-    subgraph PART["PARTITIONED - strict per-company isolation"]
-        A
-        B
-    end
-
-    C -->|"sees every store,<br/>whoever delivers it"| CAT
-    CAT --> ROUTE
-    ROUTE --> A
-    ROUTE --> B
-    A --> DB
-    B --> DB
-    DB --- ADMIN
-```
+<p align="center">
+  <img src="assets/diagrams/tenancy-model.svg" width="100%" alt="Customers see one open, nationwide catalogue; each store resolves to the delivery company that fulfils it, and those companies are strictly partitioned on a shared Postgres database.">
+</p>
 
 **Money never pools.** At checkout the server resolves the store's company and charges through *that company's own* payment account. The client holds no payment key. The payment function **refuses to fall back to the platform account** for a company that hasn't configured its own — a keyless company is reported as not payment-ready and the order is rejected, rather than silently routing a customer's money into the wrong account.
 
-```mermaid
-flowchart LR
-    P["Customer pays"]
-    K{"Resolve company<br/>from merchant"}
-    OK["Charge that company's<br/>own account"]
-    NO["Reject<br/>not payment-ready"]
-    D["Delivered"]
-    S["Settle in-database"]
-    V["Vendor<br/>full subtotal, no commission"]
-    R["Rider<br/>net earning"]
-    CO["Company<br/>commission, rate snapshotted"]
-
-    P --> K
-    K -->|"has own key"| OK
-    K -->|"no key"| NO
-    OK --> D
-    D --> S
-    S --> V
-    S --> R
-    S --> CO
-```
+<p align="center">
+  <img src="assets/diagrams/money-flow.svg" width="100%" alt="A payment resolves to the fulfilling company and is charged to that company's own account, or rejected if it has none; on delivery the order settles into the vendor subtotal, the rider net earning and the company commission.">
+</p>
 
 The commission rate is frozen onto the order at delivery, so a company changing its rate later never rewrites history.
 
