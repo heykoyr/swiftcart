@@ -123,42 +123,54 @@ A rider is never shown the delivery fee or the commission — only what lands in
 
 ```mermaid
 flowchart TB
-    C["<b>Customer app</b><br/>one nationwide storefront"]
+    C["Customer app<br/>one nationwide storefront"]
+    CAT["Catalogue<br/>deliberately not tenant-scoped<br/>public fields only"]
+    ROUTE{"Which company<br/>fulfils this store?"}
+    A["Company A<br/>own riders, own rates<br/>own payment account"]
+    B["Company B<br/>own riders, own rates<br/>own payment account"]
+    DB[("Shared Postgres<br/>69 tables, RLS on every one<br/>29 carry company_id, 192 policies")]
+    ADMIN["Admin console<br/>company view: own data only<br/>platform view: every company"]
 
-    C -->|"sees every store,<br/>regardless of operator"| CAT
-
-    subgraph OPEN["OPEN — one consumer brand"]
-        CAT["<b>Catalogue</b><br/>deliberately not tenant-scoped<br/>public fields only"]
+    subgraph OPEN["OPEN - one consumer brand"]
+        CAT
     end
 
-    CAT --> ROUTE{"Which company<br/>fulfils this store?"}
-
-    subgraph PART["PARTITIONED — strict per-company isolation"]
-        direction LR
-        A["<b>Company A</b><br/>own riders · own rates<br/>own payment account"]
-        B["<b>Company B</b><br/>own riders · own rates<br/>own payment account"]
+    subgraph PART["PARTITIONED - strict per-company isolation"]
+        A
+        B
     end
 
+    C -->|"sees every store,<br/>whoever delivers it"| CAT
+    CAT --> ROUTE
     ROUTE --> A
     ROUTE --> B
-
-    A & B --> DB[("<b>Shared Postgres</b><br/>69 tables · RLS on every one<br/>29 carry company_id · 192 policies")]
-
-    DB --- ADMIN["<b>Admin console</b><br/>company view: own data only<br/>platform view: every company"]
+    A --> DB
+    B --> DB
+    DB --- ADMIN
 ```
 
 **Money never pools.** At checkout the server resolves the store's company and charges through *that company's own* payment account. The client holds no payment key. The payment function **refuses to fall back to the platform account** for a company that hasn't configured its own — a keyless company is reported as not payment-ready and the order is rejected, rather than silently routing a customer's money into the wrong account.
 
 ```mermaid
 flowchart LR
-    P["Customer pays"] --> K{"Resolve company<br/>from merchant"}
-    K -->|"company has own key"| OK["Charge company's account"]
-    K -->|"no key"| NO["<b>Reject</b><br/>not payment-ready"]
-    OK --> D["Delivered"]
-    D --> S["<b>Settle in-database</b>"]
-    S --> V["Vendor: full subtotal<br/><i>no commission, ever</i>"]
-    S --> R["Rider: net earning"]
-    S --> CO["Company: commission<br/><i>rate snapshotted onto the order</i>"]
+    P["Customer pays"]
+    K{"Resolve company<br/>from merchant"}
+    OK["Charge that company's<br/>own account"]
+    NO["Reject<br/>not payment-ready"]
+    D["Delivered"]
+    S["Settle in-database"]
+    V["Vendor<br/>full subtotal, no commission"]
+    R["Rider<br/>net earning"]
+    CO["Company<br/>commission, rate snapshotted"]
+
+    P --> K
+    K -->|"has own key"| OK
+    K -->|"no key"| NO
+    OK --> D
+    D --> S
+    S --> V
+    S --> R
+    S --> CO
 ```
 
 The commission rate is frozen onto the order at delivery, so a company changing its rate later never rewrites history.
